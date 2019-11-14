@@ -33,7 +33,7 @@ void botoes();
 
 /* ========== DEFINIÇÕES DE PORTAS ========== */
 
-Servo ServoMotor;
+Servo motorArma;
 
 //Pino de controle do motor
 int pino_motor = 2;
@@ -62,9 +62,7 @@ int contArma = 0;//controla o estado da arma: LIGADA ou DESLIGADA
 
 /* ========== CONFIGURAÇÃO ========== */
 void setup()
-{
-  ServoMotor.attach(pino_motor);//define a porta digital do pino de entrada do brushless
-  
+{  
   // seta os pinos da ponte H
   pinMode(IN1, OUTPUT);
   pinMode(IN2, OUTPUT);
@@ -78,9 +76,11 @@ void setup()
   
   Serial.begin(9600);
 
+  motorArma.attach(pino_motor);//define a porta digital do pino de entrada do brushless.
+
   Serial.println("Aguardando 5 segundos ...");
   
-  delay(5000);  // atraso adicional para fornecer o módulo ps2 sem fio algum tempo para iniciar, antes de configurá-lo, e para o esc estabelecer a conexao entre o arduino e o motor brushless
+  delay(500);  // atraso adicional para fornecer o módulo ps2 sem fio algum tempo para iniciar, antes de configurá-lo, e para o esc estabelecer a conexao entre o arduino e o motor brushless
   
   //==========|| TESTES DE CONEXAO DO CONTROLE ||=============================================================================================================================================//
   
@@ -171,8 +171,6 @@ void botoes()
   //BOTÕES L_R
   if (ps2x.NewButtonState())         //sera VERDADEIRO se qualquer botao mudar de estado(on to off, or off to on)
   {
-    
-    
     if(ps2x.Button(PSB_L3))
     {
       Serial.println("L3 pressionado.");
@@ -180,12 +178,23 @@ void botoes()
     
     if(ps2x.Button(PSB_R2))
     {
+      int contRotacao = 0;
       /*
 
       PROBLEMA ATUAL: O motor inicia no valor definido(170), mas quando R2 é clicado nvoamente, a rotação para, e não retorna novamente.
       Ideias: 
         * Circuito pode estar perdendo o contato.
         * Ele não está entendendo que o valor após o "zero" é um novo comando de rotação.
+      
+      */
+
+      /*
+
+      Lista das velocidades testadas:
+      90: parou
+      100: rodou mais devagar
+      150: rodou no talo
+      180: não rodou
       
       */
       
@@ -195,15 +204,15 @@ void botoes()
       
       if(contArma%2 == 0)
       {
-        valor = 0;//angulação
-        ServoMotor.write(valor*contArma*(-1));
+        valor = 90;//angulação        
+        motorArma.write(valor);
         Serial.print("Valor para o motor: ");
         Serial.println(valor);
       }
       else
       {
-        valor = 170;//angulação
-        ServoMotor.write(valor);
+        valor = 171;//angulação
+        motorArma.write(valor);
         Serial.print("Valor para o motor: ");
         Serial.println(valor);
       }
